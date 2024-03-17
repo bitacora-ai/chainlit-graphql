@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  graphql:
+    build:
+      context: .
+      args:
+        - DB_CONFIG=${DB_CONFIG}
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+    volumes:
+      - .:/app  
+    container_name: graphql
+    ports:
+      - "8888:8888"
+    restart: always
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgresql_db
+    image: postgres:15
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3000M
+        reservations:
+          cpus: '2'
+          memory: 1000M
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    ports:
+      - 5050:80
+    depends_on:
+      - postgres

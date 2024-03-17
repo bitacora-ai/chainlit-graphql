@@ -1,0 +1,6 @@
+/env
+/mydatabase.db
+__pycache__/
+*.pyc
+aws
+.env

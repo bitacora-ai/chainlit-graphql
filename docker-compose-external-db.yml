@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  graphql:
+    image: bitacoraai/chainlitgraphql
+    environment:
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - LITERAL_API_KEY=${LITERAL_API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - AWS_BUCKET_NAME=${AWS_BUCKET_NAME}
+    container_name: chainlitgraphql
+    ports:
+      - "8888:8888"
+    restart: always
