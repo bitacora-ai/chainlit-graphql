@@ -1,6 +1,9 @@
 
 # ChainLit Chat History Persister
 
+[![Example Using Chainlit Custom Server]](https://youtu.be/S6AR5shbcZc?si=Y9zGDGcjJJYccaKs)
+
+
 :warning:**Disclaimer**: This project is an independent, open-source initiative aimed at persisting chat history for ChainLit users. It is **not** officially affiliated with, endorsed by, or related to the ChainLit project or its developers. While every effort is made to ensure accuracy and compatibility, the nature of open-source work means that we cannot guarantee absolute compatibility or performance. Use at your own risk.
 
 Welcome to the ChainLit Chat History Persister project! This solution is designed as a custom backend compatible with ChainLit installations to enable persistent storage of chat history. Leveraging GraphQL, it aims to integrate seamlessly with the ChainLit ecosystem, providing a sturdy first step towards a customizable data layer as encouraged by the ChainLit documentation. [Custom Data Persistence in ChainLit](https://docs.chainlit.io/data-persistence/custom)

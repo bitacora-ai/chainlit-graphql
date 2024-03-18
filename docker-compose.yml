@@ -2,8 +2,9 @@ version: "3.8"
 
 services:
   graphql:
-    image: bitacoraai/chainlitgraphql
+    image: bitacoraai/chainlit-graphql
     environment:
+      - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
