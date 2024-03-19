@@ -78,9 +78,7 @@ class StepRepository:
                                 if attachments is not None
                                 else None
                             ),
-                            "createdAt": datetime.now(timezone.utc).replace(
-                                tzinfo=None
-                            ),
+                            "createdAt": datetime.now(timezone.utc),
                         }.items()
                         if value is not None
                     }

@@ -9,21 +9,6 @@
 Welcome to the ChainLit Chat History Persister project! This solution is designed as a custom backend compatible with ChainLit installations to enable persistent storage of chat history. Leveraging GraphQL, it aims to integrate seamlessly with the ChainLit ecosystem, providing a sturdy first step towards a customizable data layer as encouraged by the ChainLit documentation. [Custom Data Persistence in ChainLit](https://docs.chainlit.io/data-persistence/custom)
 
 
-## Project Overview
-
-The initiative behind this project is to allow users to maintain control over their chat history, ensuring data persists across updates to the ChainLit server environment. This backend solution is compatible with ChainLit version 1.0.301, with plans to support newer versions shortly. If you require compatibility with an older version of ChainLit, please reach out so we can consider your needs.
-
-### Key Features
-
-- **Persistent Chat History:** Keeps your chat data safe and retrievable.
-- **Compatibility:** Works with ChainLit version 1.0.301.
-- **Flexible Storage Options:** Supports both Docker-managed PostgreSQL databases and external databases. Non-text data requires an S3 bucket for storage.
-
-### Current Limitations
-
-- **No UI for Observability:** In this release, there's no dedicated UI for data management or observation. Database queries are currently the method for data retrieval.
-- **Initial Setup Requirements:** User and API key generation occur at the first application run; a more refined management system is planned for future releases.
-
 ## How to Use
 
 You can deploy this project using a Docker image from Docker Hub or by cloning the repository for a more hands-on setup. Both methods support using either a Docker-managed PostgreSQL database or an external database for flexibility.
@@ -58,6 +43,21 @@ Run the following command to start the Docker container:
 docker compose up -d
 ```
 For setups utilizing an external PostgreSQL database, replace `docker-compose.yml` with `docker-compose-external-db.yml` and update it with your database details.
+
+## Project Overview
+
+The initiative behind this project is to allow users to maintain control over their chat history, ensuring data persists across updates to the ChainLit server environment. This backend solution is compatible with ChainLit version 1.0.4*, with plans to support newer versions shortly. If you require compatibility with an older version of ChainLit, please reach out so we can consider your needs.
+
+### Key Features
+
+- **Persistent Chat History:** Keeps your chat data safe and retrievable.
+- **Compatibility:** Works with ChainLit version 1.0.4*.
+- **Flexible Storage Options:** Supports both Docker-managed PostgreSQL databases and external databases. Non-text data requires an S3 bucket for storage.
+
+### Current Limitations
+
+- **No UI for Observability:** In this release, there's no dedicated UI for data management or observation. Database queries are currently the method for data retrieval.
+- **Initial Setup Requirements:** User and API key generation occur at the first application run; a more refined management system is planned for future releases.
 
 ### Collaboration and Feedback
 

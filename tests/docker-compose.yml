@@ -3,6 +3,7 @@ services:
   db:
     image: postgres:15-alpine
     environment:
+      DB_HOST: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: test_db

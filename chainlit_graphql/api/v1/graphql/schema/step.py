@@ -9,6 +9,7 @@ from ..scalars.json_scalar import Json
 @strawberry.input
 class GenerationPayloadInput:
     type: Optional[str] = None
+    promptId: Optional[str] = None
     prompt: Optional[str] = None
     provider: Optional[str] = None
     settings: Optional[Json] = None
@@ -37,6 +38,7 @@ class GenerationPayloadInput:
 @strawberry.type
 class GenerationType:
     type: Optional[str] = None
+    promptId: Optional[str] = None
     prompt: Optional[str] = None
     provider: Optional[str] = None
     settings: Optional[Json] = None
