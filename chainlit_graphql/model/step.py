@@ -1,7 +1,7 @@
 from sqlmodel import SQLModel, Field, Relationship
 from typing import Optional, List, Dict
 from datetime import datetime, timezone
-from sqlalchemy import Column, JSON
+from sqlalchemy import Column, DateTime, JSON
 import uuid
 
 from typing import TYPE_CHECKING
@@ -19,8 +19,8 @@ class Step(SQLModel, table=True):
     )
     thread_id: Optional[str] = Field(default=None, foreign_key="threads.id")
     parent_id: Optional[str] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    start_time: Optional[datetime] = Field(sa_column=Column(DateTime(timezone=True)))
+    end_time: Optional[datetime] = Field(sa_column=Column(DateTime(timezone=True)))
     type: Optional[str] = None
     error: Optional[str] = None
     input: Optional[Dict] = Field(default=None, sa_column=Column(JSON))
@@ -30,10 +30,7 @@ class Step(SQLModel, table=True):
     name: Optional[str] = None
     generation: Optional[Dict] = Field(default=None, sa_column=Column(JSON))
     attachments: Optional[Dict] = Field(default=None, sa_column=Column(JSON))
-    createdAt: Optional[datetime] = Field(
-        default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
-        nullable=False,
-    )
+    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column(DateTime(timezone=True)))
     thread: "Thread" = Relationship(back_populates="steps")
     feedback: Optional["Feedback"] = Relationship(
         back_populates="step",

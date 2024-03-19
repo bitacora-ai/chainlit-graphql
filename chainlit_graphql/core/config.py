@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
-    DB_HOST: Optional[str] = None
+    DB_HOST: Optional[str] = "postgres"
     DB_PORT: int = 5432
     DB_USER: Optional[str] = None
     DB_PASSWORD: Optional[str] = None

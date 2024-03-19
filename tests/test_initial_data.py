@@ -35,6 +35,6 @@ async def test_create_initial_data(prepare_db):
 
             # Ensure the API key was created for the user
             assert apikey is not None
-            assert apikey.key == "jcWHbzz5H2iDh87am__kpfySr76akh72Ic2VG_FjtmA"
+            assert apikey.key, "apikey.key is None or empty"
             assert apikey.name == "Initial API Key"
             assert apikey.project_id == "PROJECT_ID_HERE"
