@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .thread import Thread
-    from .feedback import Feedback
+    from .score import Score
 
 
 class Step(SQLModel, table=True):
@@ -30,11 +30,14 @@ class Step(SQLModel, table=True):
     name: Optional[str] = None
     generation: Optional[Dict] = Field(default=None, sa_column=Column(JSON))
     attachments: Optional[Dict] = Field(default=None, sa_column=Column(JSON))
-    createdAt: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column=Column(DateTime(timezone=True)))
+    createdAt: Optional[datetime] = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column=Column(DateTime(timezone=True)),
+    )
     thread: "Thread" = Relationship(back_populates="steps")
-    feedback: Optional["Feedback"] = Relationship(
+    scores: Optional[List["Score"]] = Relationship(
         back_populates="step",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan", "uselist": False},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
     thread: "Thread" = Relationship(back_populates="steps")
 

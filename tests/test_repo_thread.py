@@ -7,10 +7,10 @@ from chainlit_graphql.db.database import db
 from chainlit_graphql.repository.thread import thread_repo
 from chainlit_graphql.model import Thread, Participant, Step
 from chainlit_graphql.api.v1.graphql.schema.thread import (
-    ThreadFiltersInput,
-    StringListFilter,
-    StringListOperators,
+    FilterOperatorEnum,
     ThreadType,
+    ThreadsFieldEnumType,
+    ThreadsInputType,
 )
 from datetime import datetime, timedelta, timezone
 import base64
@@ -18,9 +18,7 @@ import base64
 
 @pytest.mark.asyncio
 async def test_get_paginated_threads(prepare_db):
-    # Prepare a session and repository instance
     async with db.SessionLocal() as session:
-
         # Mock data
         participant = Participant(id="1", identifier="participant-123")
         step = Step(id="1", type="Step 1")
@@ -31,35 +29,31 @@ async def test_get_paginated_threads(prepare_db):
             createdAt=datetime.now(timezone.utc).replace(tzinfo=None),
         )
 
-        # Add mock data to the database
         session.add(participant)
         session.add(step)
         session.add(thread)
         await session.commit()
 
-        # Mock ThreadFiltersInput
-        filters = ThreadFiltersInput(
-            participantsIdentifier=StringListFilter(
-                operator=StringListOperators.in_, value=["participant-123"]
-            )
-        )
+        # Define filters using ThreadsInputType
+        filters = [
+            ThreadsInputType(
+                field=ThreadsFieldEnumType.participantId,
+                operator=FilterOperatorEnum.eq,
+                value=participant.id,
+            ),
+        ]
 
-        # Call the method under test
         threads_connection = await thread_repo.get_paginated_threads(
             filters=filters, first=1
         )
 
-        # Assertions
         assert threads_connection.total_count == 1
         assert len(threads_connection.edges) == 1
         first_edge = threads_connection.edges[0]
 
-        # Updated assertions to reflect actual structure and attributes
-        # Assuming `ThreadType` and `ParticipantType` have `id` fields as a common attribute
         assert hasattr(first_edge.node, "id"), "ThreadType does not have 'id' attribute"
         assert first_edge.node.id == str(thread.id), "Thread ID does not match"
 
-        # If ParticipantType maps directly to Participant and uses 'identifier' to match 'participant-123'
         assert hasattr(
             first_edge.node, "participant"
         ), "ThreadType does not have 'participant' attribute"
@@ -67,7 +61,6 @@ async def test_get_paginated_threads(prepare_db):
             first_edge.node.participant.identifier == participant.identifier
         ), "Participant identifier does not match"
 
-        # Decode the cursor and ensure it matches the thread ID
         decoded_cursor = base64.b64decode(first_edge.cursor).decode()
         assert decoded_cursor == f"Thread:{thread.id}"
 

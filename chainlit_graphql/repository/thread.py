@@ -9,7 +9,7 @@ from chainlit_graphql.api.v1.graphql.schema.thread import (
     ThreadEdge,
     PageInfo,
     ParticipantType,
-    ThreadFiltersInput,
+    ThreadsInputType,
 )
 from chainlit_graphql.db.database import db
 from sqlalchemy.sql import select
@@ -30,7 +30,7 @@ class ThreadRepository:
         after: Optional[strawberry.ID] = None,
         before: Optional[strawberry.ID] = None,
         cursorAnchor: Optional[datetime] = None,
-        filters: Optional[ThreadFiltersInput] = None,
+        filters: Optional[List[ThreadsInputType]] = None,
         first: Optional[int] = None,
         last: Optional[int] = None,
         projectId: Optional[str] = None,
@@ -42,7 +42,7 @@ class ThreadRepository:
                 query = (
                     select(Thread)
                     .options(
-                        selectinload(Thread.steps).selectinload(Step.feedback),
+                        selectinload(Thread.steps).selectinload(Step.scores),
                         selectinload(Thread.participant),
                     )
                     .order_by(desc(Thread.createdAt))
@@ -65,32 +65,35 @@ class ThreadRepository:
 
                 # Apply additional filters (if provided)
                 if filters:
-                    if filters.participantsIdentifier:
-                        # Extract the operator and values from the filter
-                        operator = filters.participantsIdentifier.operator
-                        identifiers = filters.participantsIdentifier.value
+                    for filter in filters:
+                        if filter.field == "participantId":
+                            # Extract the operator and values from the filter
+                            operator = filter.operator
+                            identifiers = filter.value
 
-                        # Apply filter based on the operator
-                        if operator == "in":
-                            participant_ids = await session.execute(
-                                select(Participant.id).where(
-                                    Participant.identifier.in_(identifiers)
+                            # Apply filter based on the operator
+                            if operator == "eq":
+                                query = query.where(Thread.participantId == identifiers)
+                            elif operator == "in":
+                                participant_ids = await session.execute(
+                                    select(Participant.id).where(
+                                        Participant.identifier.in_(identifiers)
+                                    )
                                 )
-                            )
-                            participant_ids_list = [id[0] for id in participant_ids]
-                            query = query.join(Thread.participant).where(
-                                Participant.id.in_(participant_ids_list)
-                            )
-                        elif operator == "nin":
-                            participant_ids = await session.execute(
-                                select(Participant.id).where(
-                                    Participant.identifier.in_(identifiers)
+                                participant_ids_list = [id[0] for id in participant_ids]
+                                query = query.join(Thread.participant).where(
+                                    Participant.id.in_(participant_ids_list)
                                 )
-                            )
-                            participant_ids_list = [id[0] for id in participant_ids]
-                            query = query.join(Thread.participant).where(
-                                ~Participant.id.in_(participant_ids_list)
-                            )
+                            elif operator == "nin":
+                                participant_ids = await session.execute(
+                                    select(Participant.id).where(
+                                        Participant.identifier.in_(identifiers)
+                                    )
+                                )
+                                participant_ids_list = [id[0] for id in participant_ids]
+                                query = query.join(Thread.participant).where(
+                                    ~Participant.id.in_(participant_ids_list)
+                                )
 
                 # Skip and limit
                 if skip is not None:
@@ -103,7 +106,6 @@ class ThreadRepository:
                 # Execute query for threads
                 result = await session.execute(query)
                 threads = result.scalars().all()
-
                 # Manually fetch steps and participant for each thread
                 edges = []
                 for thread in threads:
@@ -256,7 +258,7 @@ class ThreadRepository:
                 select(Thread)
                 .where(Thread.id == id)
                 .options(
-                    joinedload(Thread.steps).joinedload(Step.feedback),
+                    joinedload(Thread.steps).joinedload(Step.scores),
                     joinedload(Thread.participant),
                 )
                 .order_by(text('"steps_1"."createdAt"'))
@@ -277,7 +279,7 @@ class ThreadRepository:
                 select(Thread)
                 .where(Thread.id == id)
                 .options(
-                    joinedload(Thread.steps).joinedload(Step.feedback),
+                    joinedload(Thread.steps).joinedload(Step.scores),
                     joinedload(Thread.participant),
                 )
                 .order_by(text('"steps_1"."createdAt"'))
@@ -309,12 +311,12 @@ class ThreadRepository:
             await session.execute(stmt)
             await session.flush()
 
-            # Retrieve the updated model with eager loading for steps and their feedback, and participant
+            # Retrieve the updated model with eager loading for steps and their score, and participant
             result = await session.execute(
                 select(Thread)
                 .where(Thread.id == id)
                 .options(
-                    selectinload(Thread.steps).selectinload(Step.feedback),
+                    selectinload(Thread.steps).selectinload(Step.scores),
                     selectinload(Thread.participant),
                 )
             )
@@ -330,12 +332,12 @@ class ThreadRepository:
         session.add(thread_data)
         await session.flush()
 
-        # Retrieve the created Thread with eager loading for steps and their feedback, and participant
+        # Retrieve the created Thread with eager loading for steps and their scores, and participant
         result = await session.execute(
             select(Thread)
             .where(Thread.id == thread_data.id)
             .options(
-                selectinload(Thread.steps).selectinload(Step.feedback),
+                selectinload(Thread.steps).selectinload(Step.scores),
                 selectinload(Thread.participant),
             )
         )

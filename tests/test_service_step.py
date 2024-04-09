@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from chainlit_graphql.service.step import StepService
 from chainlit_graphql.repository.step import step_repo
 from chainlit_graphql.api.v1.graphql.schema.step import (
+    ScorePayloadInput,
     StepsType,
     StepType,
     GenerationPayloadInput,
@@ -39,6 +40,11 @@ async def test_upsert(mock_upsert_step, step_service):
     step_input = json.dumps({"key": "input value"})
     step_output = json.dumps({"key": "output value"})
     metadata = json.dumps({"key": "metadata value"})
+    scores = [
+        ScorePayloadInput(
+            comment="very good", type="HUMAN", name="the name", value=0.99
+        )
+    ]
     generation_payload = GenerationPayloadInput(type="test-type")
     attachment_payload = [AttachmentPayloadInput(id="attachment-1")]
 
@@ -55,7 +61,7 @@ async def test_upsert(mock_upsert_step, step_service):
         parentId="parent-1",
         name="Test Step",
         generation=generation_payload,
-        feedback=json.dumps({"score": 5}),
+        scores=scores,
         attachments=attachment_payload,
     )
 

@@ -1,3 +1,5 @@
+from chainlit_graphql.api.v1.graphql.schema.score import Score, ScoreType
+from chainlit_graphql.service.score import ScoreService
 import strawberry
 from typing import Optional, List
 
@@ -5,17 +7,15 @@ from chainlit_graphql.api.deps import IsValidApiKey
 from chainlit_graphql.service.participant import ParticipantService
 from chainlit_graphql.service.step import StepService
 from chainlit_graphql.service.thread import ThreadService
-from chainlit_graphql.service.feedback import FeedbackService
 from chainlit_graphql.repository.participant import participant_repo
 from chainlit_graphql.repository.thread import thread_repo
-from chainlit_graphql.repository.feedback import feedback_repo
+from chainlit_graphql.repository.score import score_repo
 from chainlit_graphql.repository.step import step_repo
-from ..schema.feedback import FeedbackPayloadInput, FeedbackStrategy
 from ..schema.step import (
     AttachmentPayloadInput,
+    ScorePayloadInput,
     StepsType,
     StepType,
-    FeedbackType,
     GenerationPayloadInput,
 )
 from ..schema.thread import ThreadType
@@ -53,17 +53,6 @@ class Mutation:
         return thread
 
     @strawberry.mutation(permission_classes=[IsValidApiKey])
-    async def updateFeedback(
-        self,
-        id: str,
-        comment: Optional[str],
-        value: Optional[int],
-        strategy: Optional[FeedbackStrategy],
-    ) -> Optional[FeedbackType]:
-        feedback_service = FeedbackService(feedback_repo)
-        return await feedback_service.update(id, comment, value, strategy)
-
-    @strawberry.mutation(permission_classes=[IsValidApiKey])
     async def upsertThread(
         self,
         id: str,
@@ -97,8 +86,8 @@ class Mutation:
         metadata: Optional[Json] = None,
         parentId: Optional[str] = None,
         name: Optional[str] = None,
+        scores: Optional[List[ScorePayloadInput]] = None,
         generation: Optional[GenerationPayloadInput] = None,
-        feedback: Optional[FeedbackPayloadInput] = None,
         attachments: Optional[List[AttachmentPayloadInput]] = None,
     ) -> Optional[StepsType]:
         step_service = StepService(step_repo)
@@ -114,8 +103,8 @@ class Mutation:
             metadata,
             parentId,
             name,
+            scores,
             generation,
-            feedback,
             attachments,
         )
 
@@ -134,12 +123,61 @@ class Mutation:
         )
 
     @strawberry.mutation(permission_classes=[IsValidApiKey])
-    async def createFeedback(
+    async def createScore(
         self,
-        comment: Optional[str],
-        stepId: str,
-        strategy: Optional[FeedbackStrategy],
-        value: int,
-    ) -> Optional[FeedbackType]:
-        feedback_service = FeedbackService(feedback_repo)
-        return await feedback_service.add_feedback(comment, stepId, strategy, value)
+        name: str,
+        type: ScoreType,
+        value: float,
+        stepId: Optional[str] = None,
+        generationId: Optional[str] = None,
+        datasetExperimentItemId: Optional[str] = None,
+        comment: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+    ) -> Score:
+        score_service = ScoreService(score_repository=score_repo)
+        return await score_service.add_score(
+            name=name,
+            type=type,
+            value=value,
+            stepId=stepId,
+            generationId=generationId,
+            datasetExperimentItemId=datasetExperimentItemId,
+            comment=comment,
+            tags=tags,
+        )
+
+    @strawberry.mutation(permission_classes=[IsValidApiKey])
+    async def updateScore(
+        self,
+        id: str,
+        name: Optional[str] = None,
+        type: Optional[ScoreType] = None,
+        value: Optional[float] = None,
+        stepId: Optional[str] = None,
+        generationId: Optional[str] = None,
+        datasetExperimentItemId: Optional[str] = None,
+        comment: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+    ) -> Score:
+        score_service = ScoreService(score_repository=score_repo)
+        updated_score = await score_service.update_score(
+            id=id,
+            name=name,
+            type=type,
+            value=value,
+            stepId=stepId,
+            generationId=generationId,
+            datasetExperimentItemId=datasetExperimentItemId,
+            comment=comment,
+            tags=tags,
+        )
+        if updated_score:
+            return updated_score
+        else:
+            raise ValueError(f"Score with id {id} not found")
+
+    @strawberry.mutation(permission_classes=[IsValidApiKey])
+    async def deleteScore(self, id: str) -> Optional[Score]:
+        score_service = ScoreService(score_repository=score_repo)
+        deleted_score = await score_service.delete(id)
+        return deleted_score

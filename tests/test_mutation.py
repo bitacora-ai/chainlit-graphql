@@ -1,20 +1,17 @@
 from datetime import datetime, timezone
+from chainlit_graphql.api.v1.graphql.schema.score import Score, ScoreType
 import pytest
 from unittest.mock import patch, AsyncMock
 
 from chainlit_graphql.api.v1.graphql.graphql_app import Mutation
-from chainlit_graphql.api.v1.graphql.schema.feedback import (
-    FeedbackStrategy,
-    FeedbackType,
-)
 from chainlit_graphql.api.v1.graphql.schema.step import (
     AttachmentPayloadInput,
     GenerationPayloadInput,
+    ScorePayloadInput,
     StepType,
     StepsType,
 )
 from chainlit_graphql.api.v1.graphql.schema.thread import ThreadType
-from chainlit_graphql.service.feedback import FeedbackService
 from chainlit_graphql.service.thread import ThreadService
 from chainlit_graphql.service.participant import ParticipantService
 from chainlit_graphql.api.v1.graphql.schema.participant import ParticipantType
@@ -100,36 +97,6 @@ async def test_update_participant_success(mock_update):
 
 
 @pytest.mark.asyncio
-@patch.object(FeedbackService, "update", new_callable=AsyncMock)
-async def test_update_feedback_success(mock_update):
-    feedback_id = "feedback-123"
-    thread_id = "thread-123"  # Define a thread ID
-    step_id = "step-123"  # Define a step ID
-    comment = "New Comment"
-    value = 5
-    strategy = FeedbackStrategy.STARS
-    # Include threadId and stepId in FeedbackType initialization
-    mock_feedback = FeedbackType(
-        id=feedback_id,
-        comment=comment,
-        value=value,
-        strategy=strategy,
-        threadId=thread_id,
-        stepId=step_id,
-    )
-    mock_update.return_value = mock_feedback
-
-    mutation = Mutation()
-    result = await mutation.updateFeedback(
-        id=feedback_id, comment=comment, value=value, strategy=strategy
-    )
-
-    assert result == mock_feedback
-    # Ensure the mock service method was called with the correct arguments
-    mock_update.assert_awaited_once_with(feedback_id, comment, value, strategy)
-
-
-@pytest.mark.asyncio
 @patch.object(ThreadService, "upsert_thread", new_callable=AsyncMock)
 async def test_upsert_thread_success(mock_upsert):
     thread_id = "thread-123"
@@ -172,16 +139,19 @@ async def test_ingest_step_success(mock_upsert_step):
     start_time = datetime.now(timezone.utc)
     end_time = datetime.now(timezone.utc)
     step_type = StepType.user_message
-    error = "None"
+    error = None
     input_data = '{"key": "input value"}'
     output_data = '{"key": "output value"}'
     metadata = '{"key": "metadata value"}'
     parent_id = "parent-1"
     name = "Test Step"
     generation = GenerationPayloadInput(type="test-type")
-    feedback = '{"score": 5}'
     attachments = [AttachmentPayloadInput(id="attachment-1")]
-    created_at = datetime.now(timezone.utc)
+    scores = [
+        ScorePayloadInput(
+            comment="very good", type="HUMAN", name="the name", value=0.99
+        )
+    ]
 
     mock_step = StepsType(
         id=step_id,
@@ -195,7 +165,7 @@ async def test_ingest_step_success(mock_upsert_step):
         metadata=metadata,
         parent_id=parent_id,
         name=name,
-        createdAt=created_at,
+        createdAt=datetime.now(timezone.utc),  # Assuming createdAt is part of StepsType
     )
     mock_upsert_step.return_value = mock_step
 
@@ -213,8 +183,8 @@ async def test_ingest_step_success(mock_upsert_step):
         parentId=parent_id,
         name=name,
         generation=generation,
-        feedback=feedback,
         attachments=attachments,
+        scores=scores,
     )
 
     assert result == mock_step
@@ -230,8 +200,8 @@ async def test_ingest_step_success(mock_upsert_step):
         metadata,
         parent_id,
         name,
+        scores,
         generation,
-        feedback,
         attachments,
     )
 
@@ -271,31 +241,136 @@ async def test_create_thread_success(mock_add_thread):
 
 @pytest.mark.asyncio
 @patch(
-    "chainlit_graphql.service.feedback.FeedbackService.add_feedback",
+    "chainlit_graphql.service.score.ScoreService.add_score",
     new_callable=AsyncMock,
 )
-async def test_create_feedback_success(mock_add_feedback):
-    comment = "Great job"
-    step_id = "step-123"
-    thread_id = "thread-456"  # Assuming a thread ID is needed for the FeedbackType
-    strategy = FeedbackStrategy.STARS
-    value = 5
+async def test_create_score_success(mock_add_score):
+    id = "score-123"
+    name = "Test Score"
+    type = ScoreType.AI
+    value = 99.5
+    step_id = "step-456"
+    generation_id = "gen-789"
+    dataset_experiment_item_id = "dataset-123"
+    comment = "Outstanding performance"
+    tags = ["urgent", "review"]
 
-    # Add 'threadId=thread_id' to the FeedbackType initialization
-    mock_feedback = FeedbackType(
-        id="feedback-123",
-        comment=comment,
-        stepId=step_id,
-        strategy=strategy,
+    mock_score = Score(
+        id=id,
+        name=name,
+        type=type,
         value=value,
-        threadId=thread_id,
+        stepId=step_id,
+        generationId=generation_id,
+        datasetExperimentItemId=dataset_experiment_item_id,
+        comment=comment,
+        tags=tags,
     )
-    mock_add_feedback.return_value = mock_feedback
+    mock_add_score.return_value = mock_score
 
     mutation = Mutation()
-    result = await mutation.createFeedback(
-        comment=comment, stepId=step_id, strategy=strategy, value=value
+    result = await mutation.createScore(
+        name=name,
+        type=type,
+        value=value,
+        stepId=step_id,
+        generationId=generation_id,
+        datasetExperimentItemId=dataset_experiment_item_id,
+        comment=comment,
+        tags=tags,
     )
 
-    assert result == mock_feedback
-    mock_add_feedback.assert_awaited_once_with(comment, step_id, strategy, value)
+    assert result == mock_score
+    mock_add_score.assert_awaited_once_with(
+        name=name,
+        type=type,
+        value=value,
+        stepId=step_id,
+        generationId=generation_id,
+        datasetExperimentItemId=dataset_experiment_item_id,
+        comment=comment,
+        tags=tags,
+    )
+
+
+@pytest.mark.asyncio
+@patch(
+    "chainlit_graphql.service.score.ScoreService.update_score",
+    new_callable=AsyncMock,
+)
+async def test_update_score_success(mock_update_score):
+    id = "score-123"
+    name = "Updated Test Score"
+    type = ScoreType.HUMAN
+    value = 95.0
+    step_id = "step-456"
+    generation_id = "gen-789"
+    dataset_experiment_item_id = "dataset-123"
+    comment = "Improved performance"
+    tags = ["high_priority", "reviewed"]
+
+    mock_score = Score(
+        id=id,
+        name=name,
+        type=type,
+        value=value,
+        stepId=step_id,
+        generationId=generation_id,
+        datasetExperimentItemId=dataset_experiment_item_id,
+        comment=comment,
+        tags=tags,
+    )
+    mock_update_score.return_value = mock_score
+
+    mutation = Mutation()
+    result = await mutation.updateScore(
+        id=id,
+        name=name,
+        type=type,
+        value=value,
+        stepId=step_id,
+        generationId=generation_id,
+        datasetExperimentItemId=dataset_experiment_item_id,
+        comment=comment,
+        tags=tags,
+    )
+
+    assert result == mock_score
+    mock_update_score.assert_awaited_once_with(
+        id=id,
+        name=name,
+        type=type,
+        value=value,
+        stepId=step_id,
+        generationId=generation_id,
+        datasetExperimentItemId=dataset_experiment_item_id,
+        comment=comment,
+        tags=tags,
+    )
+
+
+@pytest.mark.asyncio
+@patch(
+    "chainlit_graphql.service.score.ScoreService.delete",
+    new_callable=AsyncMock,
+)
+async def test_delete_score_success(mock_delete_score):
+    score_id = "score-123"
+    mock_score = Score(
+        id=score_id,
+        name="Test Score",
+        type=ScoreType.AI,
+        value=99.5,
+        stepId="step-456",
+        generationId="gen-789",
+        datasetExperimentItemId="dataset-123",
+        comment="Outstanding performance",
+        tags=["urgent", "review"],
+    )
+    mock_delete_score.return_value = mock_score
+
+    mutation = Mutation()
+    result = await mutation.deleteScore(id=score_id)
+
+    assert result == mock_score, "Mutation should return the deleted Score object"
+    mock_delete_score.assert_awaited_once_with(score_id)

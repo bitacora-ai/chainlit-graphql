@@ -1,6 +1,6 @@
 from chainlit_graphql.repository.thread import ThreadRepository
 from chainlit_graphql.api.v1.graphql.schema.thread import ThreadType, ThreadConnection
-from chainlit_graphql.api.v1.graphql.schema.thread import ThreadFiltersInput
+from chainlit_graphql.api.v1.graphql.schema.thread import ThreadsInputType
 from typing import Optional, List
 from datetime import datetime
 import strawberry
@@ -36,7 +36,7 @@ class ThreadService:
         after: Optional[strawberry.ID] = None,
         before: Optional[strawberry.ID] = None,
         cursorAnchor: Optional[datetime] = None,
-        filters: Optional[ThreadFiltersInput] = None,
+        filters: Optional[List[ThreadsInputType]] = None,
         first: Optional[int] = None,
         last: Optional[int] = None,
         projectId: Optional[str] = None,

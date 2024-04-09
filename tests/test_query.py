@@ -3,12 +3,13 @@ import pytest
 from unittest.mock import patch, AsyncMock, MagicMock
 from chainlit_graphql.api.v1.graphql.graphql_app import Query
 from chainlit_graphql.api.v1.graphql.schema.thread import (
+    FilterAccessorEnum,
+    FilterOperatorEnum,
     PageInfo,
-    StringListFilter,
-    StringListOperators,
     ThreadConnection,
-    ThreadFiltersInput,
     ThreadType,
+    ThreadsFieldEnumType,
+    ThreadsInputType,
 )
 from chainlit_graphql.api.v1.graphql.schema.participant import ParticipantType
 from chainlit_graphql.service.apikey import ApikeyService
@@ -128,11 +129,15 @@ async def test_threads_success(mock_get_threads_paginated):
     after = "cursor1"
     before = "cursor2"
     first = 10
-    filters = ThreadFiltersInput(
-        participantsIdentifier=StringListFilter(
-            operator=StringListOperators.in_.value, value=["sampleIdentifier"]
+    filters = [
+        ThreadsInputType(
+            accessor=FilterAccessorEnum.json_get,  # Adjust enum value as needed
+            field=ThreadsFieldEnumType.duration,  # Adjust field as needed
+            operator=FilterOperatorEnum.eq,  # Adjust operator as needed
+            path=["pathToField"],  # Adjust or remove based on your needs
+            value="expectedValue",  # Adjust based on the expected type and value
         )
-    )
+    ]
     mock_thread_connection = ThreadConnection(
         edges=[],
         page_info=PageInfo(
