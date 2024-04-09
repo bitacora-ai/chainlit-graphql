@@ -4,13 +4,13 @@ from chainlit_graphql.service.participant import ParticipantService
 from chainlit_graphql.service.thread import ThreadService
 from chainlit_graphql.repository.participant import participant_repo
 from chainlit_graphql.repository.thread import thread_repo
-from typing import Optional
+from typing import List, Optional
 from ..schema.participant import ParticipantType
 from ..schema.thread import (
-    StringListOperators,
-    ThreadFiltersInput,
+    ThreadsInputType,
     ThreadType,
     ThreadConnection,
+    ThreadsOrderByInput,
 )
 from chainlit_graphql.api.deps import IsValidApiKey
 from datetime import datetime
@@ -46,16 +46,17 @@ class Query:
         after: Optional[strawberry.ID] = None,
         before: Optional[strawberry.ID] = None,
         cursorAnchor: Optional[datetime] = None,
-        filters: Optional[ThreadFiltersInput] = None,
+        filters: Optional[List[ThreadsInputType]] = None,
+        orderBy: Optional[ThreadsOrderByInput] = None,
         first: Optional[int] = None,
         last: Optional[int] = None,
         projectId: Optional[str] = None,
         skip: Optional[int] = None,
     ) -> ThreadConnection:
-        if filters.participantsIdentifier.operator not in [
-            operator.value for operator in StringListOperators
-        ]:
-            raise ValueError("Invalid operator")
+        # if filters.operator not in [
+        #     operator.value for operator in FilterOperator
+        # ]:
+        #     raise ValueError("Invalid operator")
         thread_service = ThreadService(thread_repo)
         return await thread_service.get_threads_paginated(
             after=after,

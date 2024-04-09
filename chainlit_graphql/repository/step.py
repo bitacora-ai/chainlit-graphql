@@ -2,10 +2,10 @@ from chainlit_graphql.model.step import Step
 from chainlit_graphql.repository.thread import thread_repo
 from chainlit_graphql.api.v1.graphql.schema.step import (
     AttachmentPayloadInput,
+    ScorePayloadInput,
     StepsType,
     GenerationPayloadInput,
 )
-from chainlit_graphql.api.v1.graphql.schema.feedback import FeedbackPayloadInput
 from chainlit_graphql.db.database import db
 from datetime import datetime, timezone
 import asyncio
@@ -31,8 +31,8 @@ class StepRepository:
         metadata: Optional[Json] = None,
         parentId: Optional[str] = None,
         name: Optional[str] = None,
+        scores: Optional[List[ScorePayloadInput]] = None,
         generation: Optional[GenerationPayloadInput] = None,
-        feedback: Optional[FeedbackPayloadInput] = None,
         attachments: Optional[List[AttachmentPayloadInput]] = None,
     ) -> StepsType:
         async with db.SessionLocal() as session:
@@ -68,6 +68,7 @@ class StepRepository:
                             "meta_data": metadata,
                             "parent_id": parentId,
                             "name": name,
+                            "scores": scores,
                             "generation": (
                                 MapperUtility.serialize_generation_payload(generation)
                                 if generation is not None
@@ -102,7 +103,7 @@ class StepRepository:
 
                     # Retrieve the updated/inserted step
                     updated_step = await session.get(
-                        Step, id, options=[joinedload(Step.feedback)]
+                        Step, id, options=[joinedload(Step.scores)]
                     )
 
                     # Map the updated_step to the schema

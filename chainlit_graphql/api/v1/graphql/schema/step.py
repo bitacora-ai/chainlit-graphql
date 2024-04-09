@@ -1,6 +1,6 @@
+from chainlit_graphql.api.v1.graphql.schema.score import Score, ScoreType
 import strawberry
 from typing import Optional, List
-from .feedback import FeedbackType
 from datetime import datetime
 from enum import Enum
 from ..scalars.json_scalar import Json
@@ -100,6 +100,14 @@ class StepType(Enum):
     system_message = "system_message"
 
 
+@strawberry.input
+class ScorePayloadInput:
+    comment: Optional[str] = None
+    name: str
+    type: ScoreType
+    value: float
+
+
 @strawberry.type
 class StepsType:
     id: str
@@ -115,7 +123,7 @@ class StepsType:
     output: Optional[Json] = None
     metadata: Optional[Json] = None
     name: Optional[str] = None
-    feedback: Optional[FeedbackType] = None
+    scores: Optional[List[Score]] = None
     generation: Optional[GenerationType] = None
     attachments: Optional[List[AttachmentType]] = None
     ok: Optional[bool] = True

@@ -1,1 +1,1 @@
-from chainlit_graphql.model import Feedback, User, Thread, Step  # noqa: F401
+from chainlit_graphql.model import Score, User, Thread, Step  # noqa: F401

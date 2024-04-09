@@ -51,7 +51,7 @@ The initiative behind this project is to allow users to maintain control over th
 ### Key Features
 
 - **Persistent Chat History:** Keeps your chat data safe and retrievable.
-- **Compatibility:** Works with ChainLit version 1.0.4*.
+- **Compatibility:** Works with ChainLit version 1.0.5*. Also there is image for Chainlit version 1.0.4 in case you need it. You can find all images here: [https://hub.docker.com/repository/docker/bitacoraai/chainlit-graphql/general](https://hub.docker.com/repository/docker/bitacoraai/chainlit-graphql/general). Each image has the Chainlit version it work with as tag.
 - **Flexible Storage Options:** Supports both Docker-managed PostgreSQL databases and external databases. Non-text data requires an S3 bucket for storage.
 
 ### Current Limitations

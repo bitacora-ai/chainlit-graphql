@@ -1,11 +1,11 @@
 from chainlit_graphql.repository.step import StepRepository
 from chainlit_graphql.api.v1.graphql.schema.step import (
+    ScorePayloadInput,
     StepsType,
     StepType,
     GenerationPayloadInput,
     AttachmentPayloadInput,
 )
-from chainlit_graphql.api.v1.graphql.schema.feedback import FeedbackPayloadInput
 from typing import Optional, List
 from datetime import datetime
 from chainlit_graphql.api.v1.graphql.scalars.json_scalar import Json
@@ -29,8 +29,8 @@ class StepService:
         metadata: Optional[Json] = None,
         parentId: Optional[str] = None,
         name: Optional[str] = None,
+        scores: Optional[List[ScorePayloadInput]] = None,
         generation: Optional[GenerationPayloadInput] = None,
-        feedback: Optional[FeedbackPayloadInput] = None,
         attachments: Optional[List[AttachmentPayloadInput]] = None,
     ) -> Optional[StepsType]:
 
@@ -58,8 +58,8 @@ class StepService:
             metadata,
             parentId,
             name,
+            scores,
             generation,
-            feedback,
             attachments,
         )
 

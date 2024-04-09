@@ -1,4 +1,4 @@
-from chainlit_graphql.api.v1.graphql.schema.feedback import FeedbackType
+from chainlit_graphql.api.v1.graphql.schema.score import Score
 from chainlit_graphql.api.v1.graphql.schema.step import (
     AttachmentType,
     GenerationType,
@@ -14,15 +14,22 @@ import boto3
 class MapperUtility:
 
     @staticmethod
-    async def map_feedback_to_feedbacktype(feedback_model) -> FeedbackType:
-        return FeedbackType(
-            id=feedback_model.id,
-            threadId=feedback_model.thread_id,
-            value=feedback_model.value,
-            strategy=feedback_model.strategy,
-            comment=feedback_model.comment,
-            stepId=feedback_model.step_id,
-        )
+    async def map_scores_to_scoretypes(scores_models) -> List[Score]:
+
+        return [
+            Score(
+                id=score.id,
+                name=score.name,
+                type=score.type,
+                value=score.value,
+                stepId=score.step_id,
+                generationId=score.generation_id,
+                datasetExperimentItemId=score.dataset_experiment_item_id,
+                comment=score.comment,
+                tags=score.tags,
+            )
+            for score in scores_models
+        ]
 
     @staticmethod
     async def map_attachment_to_attachmenttype(attachment_model) -> AttachmentType:
@@ -162,12 +169,10 @@ class MapperUtility:
 
     @staticmethod
     async def map_step_to_stepstype(step_model) -> StepsType:
-        # Fetch and convert feedbacks for the step
-        feedback_type = None
-        if step_model.feedback:
-            feedback_type = await MapperUtility.map_feedback_to_feedbacktype(
-                step_model.feedback
-            )
+        # Fetch and convert score for the step
+        score_type = None
+        if step_model.scores:
+            score_type = await MapperUtility.map_scores_to_scoretypes(step_model.scores)
 
         generation_payload = MapperUtility.deserialize_generation_payload(
             step_model.generation
@@ -192,7 +197,7 @@ class MapperUtility:
             output=step_model.output,
             metadata=step_model.meta_data,
             name=step_model.name,
-            feedback=feedback_type,
+            scores=score_type,
             generation=generation_payload,
             attachments=attachments_payload,
             ok=True,

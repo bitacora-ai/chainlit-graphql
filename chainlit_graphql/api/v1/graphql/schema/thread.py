@@ -2,7 +2,7 @@ import strawberry
 from strawberry import relay
 from .step import StepsType
 from .participant import ParticipantType
-from ..scalars.json_scalar import Json
+from ..scalars.json_scalar import Json, Unknown
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
@@ -13,12 +13,14 @@ class ThreadType(relay.Node):
     id: relay.NodeID[str]
     name: Optional[str] = None
     metadata: Optional[Json] = None
+    tokenCount: Optional[int] = None
     environment: Optional[str] = None
     tags: Optional[List[str]] = None
     createdAt: datetime = None
     participant_id: Optional[str] = None
     steps: Optional[List[StepsType]] = None
     participant: Optional[ParticipantType] = None
+    duration: Optional[int] = None
 
 
 @strawberry.type
@@ -52,15 +54,37 @@ class StringOperators(Enum):
 
 
 @strawberry.enum
-class StringListOperators(Enum):
-    in_ = "in"
+class FilterOperatorEnum(Enum):
+    alternate_neq = "alternate_neq"
+    double_eq = "double_eq"
+    eq = "eq"
+    exists = "exists"
+    exists_key = "exists_key"
+    gt = "gt"
+    gte = "gte"
+    ilike = "ilike"
+    ilike_regexp = "ilike_regexp"
+    # in_ = "in"  # Adjusted for Python
+    # is_ = "is"
+    like = "like"
+    lt = "lt"
+    lte = "lte"
+    match = "match"
+    neq = "neq"
+    ngt = "ngt"
+    nilike = "nilike"
+    nilike_regexp = "nilike_regexp"
     nin = "nin"
-
-
-@strawberry.enum
-class NumberListOperators(Enum):
-    in_ = "in"
-    nin = "nin"
+    nis = "nis"
+    nlike = "nlike"
+    nlt = "nlt"
+    nregexp = "nregexp"
+    null_safe_eq = "null_safe_eq"
+    overlap = "overlap"
+    regexp = "regexp"
+    regexp_match = "regexp_match"
+    text_search = "text_search"
+    text_search_or = "text_search_or"
 
 
 @strawberry.enum
@@ -79,12 +103,6 @@ class DateTimeOperators(Enum):
     gte = "gte"
     lt = "lt"
     lte = "lte"
-
-
-@strawberry.input
-class StringListFilter:
-    operator: str
-    value: List[str]
 
 
 @strawberry.input
@@ -111,15 +129,59 @@ class NumberListFilter:
     value: List[float]
 
 
+@strawberry.enum
+class FilterAccessorEnum(Enum):
+    json_get = "json_get"
+    text_get = "text_get"
+
+
+@strawberry.enum
+class ThreadsFieldEnumType(Enum):
+    createdAt = "createdAt"
+    duration = "duration"
+    environment = "environment"
+    id = "id"
+    metadata = "metadata"
+    name = "name"
+    participantId = "participantId"
+    participantIdentifiers = "participantIdentifiers"
+    scoreValue = "scoreValue"
+    stepName = "stepName"
+    stepOutput = "stepOutput"
+    stepType = "stepType"
+    tags = "tags"
+    tokenCount = "tokenCount"
+
+
 @strawberry.input
-class ThreadFiltersInput:
-    attachmentsName: Optional[StringListFilter] = None
-    createdAt: Optional[DateTimeFilter] = None
-    afterCreatedAt: Optional[DateTimeFilter] = None
-    beforeCreatedAt: Optional[DateTimeFilter] = None
-    duration: Optional[NumberFilter] = None
-    environment: Optional[StringFilter] = None
-    feedbacksValue: Optional[NumberListFilter] = None
-    participantsIdentifier: Optional[StringListFilter] = None
-    search: Optional[StringFilter] = None
-    tokenCount: Optional[NumberFilter] = None
+class StringOrFloat:
+    stringValue: Optional[str] = None
+    floatValue: Optional[float] = None
+
+
+@strawberry.input
+class ThreadsInputType:
+    accessor: Optional[FilterAccessorEnum] = None
+    field: ThreadsFieldEnumType
+    operator: FilterOperatorEnum
+    path: List[StringOrFloat] = None
+    value: Optional[Unknown] = strawberry.auto
+
+
+@strawberry.enum
+class ThreadsOrderByInputColumn(Enum):
+    createdAt = "createdAt"
+    participant = "participant"
+    tokenCount = "tokenCount"
+
+
+@strawberry.enum
+class Direction(Enum):
+    ASC = "ASC"
+    DESC = "DESC"
+
+
+@strawberry.input
+class ThreadsOrderByInput:
+    column: Optional[ThreadsOrderByInputColumn] = None
+    direction: Optional[Direction] = None
