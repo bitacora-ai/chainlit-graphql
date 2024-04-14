@@ -30,7 +30,7 @@ async def test_upsert(mock_upsert_step, step_service):
         end_time=now,
         type=StepType.llm,
         name="Test Step",
-        createdAt=now,  # Added createdAt field here
+        createdAt=now,  
     )
     mock_upsert_step.return_value = mock_step
 
@@ -45,6 +45,7 @@ async def test_upsert(mock_upsert_step, step_service):
             comment="very good", type="HUMAN", name="the name", value=0.99
         )
     ]
+    tags = ["example-tag1", "example-tag2"]  
     generation_payload = GenerationPayloadInput(type="test-type")
     attachment_payload = [AttachmentPayloadInput(id="attachment-1")]
 
@@ -60,6 +61,7 @@ async def test_upsert(mock_upsert_step, step_service):
         metadata=metadata,
         parentId="parent-1",
         name="Test Step",
+        tags=tags,  
         generation=generation_payload,
         scores=scores,
         attachments=attachment_payload,

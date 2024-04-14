@@ -31,6 +31,7 @@ class StepRepository:
         metadata: Optional[Json] = None,
         parentId: Optional[str] = None,
         name: Optional[str] = None,
+        tags: Optional[List[str]] = None, 
         scores: Optional[List[ScorePayloadInput]] = None,
         generation: Optional[GenerationPayloadInput] = None,
         attachments: Optional[List[AttachmentPayloadInput]] = None,
@@ -53,11 +54,10 @@ class StepRepository:
                     if not parent_thread_ready:
                         raise Exception("Parent thread not ready within expected time.")
 
-                    # Prepare the data for insert or upsert
                     insert_values = {
                         key: value
                         for key, value in {
-                            "id": id,  # Ensure 'id' is included for the conflict target
+                            "id": id,
                             "thread_id": threadId,
                             "start_time": startTime,
                             "end_time": endTime,
@@ -68,6 +68,7 @@ class StepRepository:
                             "meta_data": metadata,
                             "parent_id": parentId,
                             "name": name,
+                            "tags": tags, 
                             "scores": scores,
                             "generation": (
                                 MapperUtility.serialize_generation_payload(generation)

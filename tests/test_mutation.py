@@ -145,6 +145,7 @@ async def test_ingest_step_success(mock_upsert_step):
     metadata = '{"key": "metadata value"}'
     parent_id = "parent-1"
     name = "Test Step"
+    tags = ["tag1", "tag2"] 
     generation = GenerationPayloadInput(type="test-type")
     attachments = [AttachmentPayloadInput(id="attachment-1")]
     scores = [
@@ -165,7 +166,7 @@ async def test_ingest_step_success(mock_upsert_step):
         metadata=metadata,
         parent_id=parent_id,
         name=name,
-        createdAt=datetime.now(timezone.utc),  # Assuming createdAt is part of StepsType
+        createdAt=datetime.now(timezone.utc), 
     )
     mock_upsert_step.return_value = mock_step
 
@@ -182,6 +183,7 @@ async def test_ingest_step_success(mock_upsert_step):
         metadata=metadata,
         parentId=parent_id,
         name=name,
+        tags=tags, 
         generation=generation,
         attachments=attachments,
         scores=scores,
@@ -200,6 +202,7 @@ async def test_ingest_step_success(mock_upsert_step):
         metadata,
         parent_id,
         name,
+        tags,  
         scores,
         generation,
         attachments,
