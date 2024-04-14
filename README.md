@@ -46,12 +46,12 @@ For setups utilizing an external PostgreSQL database, replace `docker-compose.ym
 
 ## Project Overview
 
-The initiative behind this project is to allow users to maintain control over their chat history, ensuring data persists across updates to the ChainLit server environment. This backend solution is compatible with ChainLit version 1.0.4*, with plans to support newer versions shortly. If you require compatibility with an older version of ChainLit, please reach out so we can consider your needs.
+The initiative behind this project is to allow users to maintain control over their chat history, ensuring data persists across updates to the ChainLit server environment. This backend solution is compatible with ChainLit version 1.0.502, with plans to support newer versions shortly. If you require compatibility with an older version of ChainLit, please reach out so we can consider your needs.
 
 ### Key Features
 
 - **Persistent Chat History:** Keeps your chat data safe and retrievable.
-- **Compatibility:** Works with ChainLit version 1.0.5*. Also there is image for Chainlit version 1.0.4 in case you need it. You can find all images here: [https://hub.docker.com/repository/docker/bitacoraai/chainlit-graphql/general](https://hub.docker.com/repository/docker/bitacoraai/chainlit-graphql/general). Each image has the Chainlit version it work with as tag.
+- **Compatibility:** Works with ChainLit version 1.0.502. Also there are images for Chainlit version 1.0.40, 1.0.50 in case you need it. You can find all images here: [https://hub.docker.com/repository/docker/bitacoraai/chainlit-graphql/general](https://hub.docker.com/repository/docker/bitacoraai/chainlit-graphql/general). Each image has the Chainlit version it work with as tag.
 - **Flexible Storage Options:** Supports both Docker-managed PostgreSQL databases and external databases. Non-text data requires an S3 bucket for storage.
 
 ### Current Limitations

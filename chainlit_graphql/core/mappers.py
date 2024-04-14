@@ -117,7 +117,7 @@ class MapperUtility:
             tools=data.get("tools"),  # Added
             inputTokenCount=data.get("inputTokenCount"),  # Added
             outputTokenCount=data.get("outputTokenCount"),  # Added
-            messageCompletion=data.get("messageCompletion"),  # Added
+            messageCompletion=None, #data.get("messageCompletion"),  # Added
             templateFormat=data.get("templateFormat"),
             template=data.get("template"),
             formatted=data.get("formatted"),
