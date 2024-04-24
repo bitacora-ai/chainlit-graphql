@@ -1,4 +1,6 @@
 
+Note April/24/2024: I have checked and this version is still compatible with chainlit version 1.0.505. If You have any error please let me know. I will continue monitoring chainlit versions to see when we need an update for a new Docker image
+
 # ChainLit Chat History Persister
 
 [![Example Using Chainlit Custom Server]](https://youtu.be/S6AR5shbcZc?si=Y9zGDGcjJJYccaKs)
